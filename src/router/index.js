@@ -1,5 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 Vue.use(VueRouter)
 
 // 引入组件
@@ -35,15 +39,18 @@ const routes = [
   {
     path: "/order",
     component: Layout,
+    redirect: "/order/order-list",
+    meta: { title: "订单管理" },
     children: [
       {
         path: "/order/order-list",
         component: () => import("@/views/Order/OrderList.vue"),
-        meta: { name: '订单列表' }
+        meta: { title: '订单列表' }
       },
       {
         path: "/order/order-update",
         component: () => import("@/views/Order/OrderUpdate.vue"),
+        meta: { title: '订单编辑' }
       },
     ],
   },
@@ -52,19 +59,24 @@ const routes = [
   {
     path: "/product",
     component: Layout,
-    children: [
-      {
-        path: "/product/product-add",
-        component: () => import("@/views/Product/ProductAdd.vue"),
-      },
-      {
-        path: "/product/product-class",
-        component: () => import("@/views/Product/ProductClass.vue"),
-      },
-      {
-        path: "/product/product-list",
-        component: () => import("@/views/Product/ProductList.vue"),
-      },
+    redirect: '/product/product-list',
+    meta: { title: '商品管理' },
+    children: [{
+      path: "/product/product-list",
+      component: () => import("@/views/Product/ProductList.vue"),
+      meta: { title: '商品列表 ' }
+    },
+    {
+      path: "/product/product-add",
+      component: () => import("@/views/Product/ProductAdd.vue"),
+      meta: { title: '商品添加' },
+    },
+    {
+      path: "/product/product-class",
+      component: () => import("@/views/Product/ProductClass.vue"),
+      meta: { title: '商品分类' },
+    },
+
     ],
   },
 
@@ -72,6 +84,7 @@ const routes = [
   {
     path: "/shop",
     component: Layout,
+    meta: { title: "店铺管理" },
     children: [
       {
         path: "",
@@ -84,22 +97,28 @@ const routes = [
   {
     path: "/user",
     component: Layout,
+    redirect: "/user/user-list",
+    meta: { title: '账号管理' },
     children: [
       {
         path: "/user/user-add",
         component: () => import("@/views/User/UserAdd.vue"),
+        meta: { title: '账号添加' },
       },
       {
         path: "/user/user-list",
         component: () => import("@/views/User/UserList.vue"),
+        meta: { title: '账号列表' },
       },
       {
         path: "/user/user-update",
         component: () => import("@/views/User/UserUpdate.vue"),
+        meta: { title: '密码修改' },
       },
       {
         path: "/user/Personal",
         component: () => import("@/views/User/Personal.vue"),
+        meta: { title: '个人中心' },
       },
     ],
   },
@@ -107,23 +126,24 @@ const routes = [
   {
     path: "/total",
     component: Layout,
+    redirect: "/total/product-total",
+    meta: { title: "销售统计" },
     children: [
       {
         path: "/total/product-total",
         component: () => import("@/views/Total/ProductTotal.vue"),
+        meta: { title: "商品统计" },
       },
       {
         path: "/total/order-total",
         component: () => import("@/views/Total/OrderTotal.vue"),
+        meta: { title: "订单统计" },
       },
     ],
   },
 
 ]
-const originalPush = VueRouter.prototype.push
-VueRouter.prototype.push = function push(location) {
-  return originalPush.call(this, location).catch(err => err)
-}
+
 const router = new VueRouter({
   routes
 })

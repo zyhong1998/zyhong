@@ -27,8 +27,8 @@ export default {
   .content {
     flex: 1;
     overflow-y: scroll;
-    padding: 20px;
     background: #ccc;
+    padding: 20px;
   }
 }
 </style>

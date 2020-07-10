@@ -1,7 +1,10 @@
 <template>
   <div class="home">
-    <el-row type="flex" justify="space-around">
-      <Card v-for="(v,i) in cardclass" :key="i" :carditem="v"></Card>
+    <el-row :gutter="20">
+      <el-col :span="6" v-for="(v,i) in cardclass" :key="i">
+        <!-- 使用封装的组件 -->
+        <Card :carditem="v"></Card>
+      </el-col>
     </el-row>
     <div class="echarts">
       <div class="echarts-main" ref="echarts"></div>
@@ -20,9 +23,9 @@ export default {
     return {
       cardclass: [
         { iconSrc: "el-icon-document", title: "总订单", num: "41414" },
-        { iconSrc: "el-icon-document", title: "总销售额", num: "4141241" },
+        { iconSrc: "iconfont icon-qian", title: "总销售额", num: "4141241" },
         { iconSrc: "el-icon-s-claim", title: "今日订单数", num: "3213123" },
-        { iconSrc: "el-icon-bangzhu", title: "今日销售额", num: "2131" }
+        { iconSrc: "iconfont icon-tsk", title: "今日销售额", num: "2131" }
       ]
     };
   },
@@ -92,7 +95,6 @@ export default {
 
 <style lang="less" scoped>
 .echarts {
-  margin: 20px;
   background: #fff;
   height: 360px;
   border-radius: 4px;
@@ -102,13 +104,22 @@ export default {
     height: 300px;
   }
 }
+.card {
+  /deep/span {
+    font-size: 50px;
+  }
+}
 /deep/.el-icon-document,
 /deep/.el-icon-s-claim {
-  font-size: 40px;
   color: rgb(41, 160, 233);
 }
 /deep/.el-icon-bangzhu {
-  font-size: 40px;
   color: rgb(26, 250, 41);
+}
+/deep/.icon-qian {
+  color: #d73182;
+}
+/deep/.icon-tsk {
+  color: #1ffa2e;
 }
 </style>

@@ -84,7 +84,7 @@ export default {
 <style lang="less" scoped>
 .nav {
   height: 100%;
-  flex: 0 0 201px;
+  flex: 0 0 200px;
 
   -moz-user-select: none; /*火狐*/
   -webkit-user-select: none; /*webkit浏览器*/
@@ -127,6 +127,12 @@ export default {
 /deep/.el-menu--inline {
   .el-menu-item {
     background: rgb(32, 47, 63) !important;
+    &:hover {
+      background: rgb(81, 97, 114) !important;
+    }
   }
+}
+/deep/.el-menu {
+  border-right: none;
 }
 </style>

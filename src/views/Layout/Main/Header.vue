@@ -1,15 +1,24 @@
 <template>
   <div class="header">
-    <ul>
-      <li v-for="(item, i) in breadArr" :key="item">
-        {{ item }}
-        <span v-if=" i !== breadArr.length - 1">/</span>
-      </li>
-    </ul>
-    <h4>欢迎你biubiu</h4>
-    <div class="img">
-      <img :src="imgSrc" alt />
-    </div>
+    <!-- 面包屑 -->
+    <el-breadcrumb separator="/">
+      <el-breadcrumb-item v-for="v in breadArr" :key="v.title" :to="{ path: v.path }">{{v.title}}</el-breadcrumb-item>
+    </el-breadcrumb>
+    <el-dropdown trigger="click">
+      <span class="el-dropdown-link">
+        欢迎你，biubiubiu
+        <i class="el-icon-arrow-down el-icon--right"></i>
+      </span>
+      <el-dropdown-menu slot="dropdown" trigger="click">
+        <el-dropdown-item @click.native="jumpPersonal">
+          <!-- <router-link to="user/Personal" style="text-decoration: none; color:#606266">个人中心</router-link> -->
+          个人中心
+        </el-dropdown-item>
+        <el-dropdown-item>退出登录</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
+    <!-- 头像 -->
+    <el-avatar size="medium" :src="avatar"></el-avatar>
   </div>
 </template>
 
@@ -17,17 +26,28 @@
 export default {
   data() {
     return {
-      imgSrc: require("@/assets/imgs/1.jpg"),
+      avatar: require("@/assets/imgs/1.jpg"),
       breadArr: []
     };
   },
   methods: {
     // 计算面包屑
     calcBread() {
-      let arr = ["首页"];
-      arr.push(this.$route.meta.title);
+      let arr = [{ title: "首页", path: "/home" }];
+      this.$route.matched.forEach(v => {
+        // 如果有meta且meta中有配置了
+        if (v.meta && v.meta.title) {
+          arr.push({
+            title: v.meta.title,
+            path: v.path
+          });
+        }
+      });
+      // console.log(arr);
       this.breadArr = arr;
-      console.log(this.$route);
+    },
+    jumpPersonal() {
+      this.$router.push("/user/Personal");
     }
   },
   created() {
@@ -51,22 +71,17 @@ export default {
   align-items: center;
   padding: 0 20px;
   background: #fff;
-  ul {
+
+  .el-breadcrumb {
     display: flex;
     flex: 1;
     list-style: none;
   }
-  .img {
-    margin-left: 10px;
-    width: 40px;
-    height: 40px;
-
-    overflow: hidden;
-    img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
+  .el-dropdown {
+    cursor: pointer;
+  }
+  .el-avatar {
+    margin: 0 20px 0 10px;
   }
 }
 </style>

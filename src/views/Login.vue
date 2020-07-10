@@ -30,13 +30,25 @@
 </template>
 
 <script>
+// 引入正则验证
+import { REG_ACC } from "@/utils/REG";
 export default {
   data() {
+    // 自定义验证
+    const checkAcc = (rule, val, callback) => {
+      if (!val) {
+        callback(new Error("请输入账号"));
+      } else if (!REG_ACC.test(val)) {
+        callback(new Error("字母开头，4到15位，允许字母数字下划线"));
+      } else {
+        callback();
+      }
+    };
     return {
       loginForm: { account: "", password: "" },
       rules: {
         //单个验证是对象
-        account: { required: true, message: "请输入账号", trigger: "blur" },
+        account: { required: true, validator: checkAcc, trigger: "blur" },
         // 多个验证 【是数组】
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },

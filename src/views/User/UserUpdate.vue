@@ -1,88 +1,109 @@
 <template>
   <div class="userupdate">
-    <div class="form">
-      <p>修改密码</p>
-      <hr />
-      <el-form
-        :model="updateForm"
-        status-icon
-        :rules="rules"
-        ref="ruleForm"
-        label-width="100px"
-        class="demo-ruleForm"
-      >
-        <el-form-item label="原密码" prop="password">
-          <el-input type="password" v-model="updateForm.password" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="新密码" prop="checkPassword1">
-          <el-input type="password" v-model="updateForm.checkPassword1" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="确认新密码" prop="checkPassword2">
-          <el-input type="password" v-model="updateForm.checkPassword2" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submitForm">确定</el-button>
-          <el-button @click="resetForm">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
+    <Paner>
+      <h3 slot="title">修改密码</h3>
+      <div slot="content">
+        <div class="form">
+          <el-form
+            :model="updateForm"
+            status-icon
+            :rules="rules"
+            ref="updateForm"
+            label-width="100px"
+            class="demo-ruleForm"
+          >
+            <el-form-item label="原密码" prop="oldPwd">
+              <el-input type="password" v-model="updateForm.oldPwd" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="新密码" prop="newPwd">
+              <el-input type="password" v-model="updateForm.newPwd" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="确认新密码" prop="confrimPwd">
+              <el-input type="password" v-model="updateForm.confrimPwd" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="submitForm">确定</el-button>
+              <el-button @click="resetForm">重置</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+    </Paner>
   </div>
 </template>
 
 <script>
+import Paner from "@/components/Paner.vue";
+// 引入正则验证
+import { REG_PWD } from "@/utils/REG";
 export default {
+  components: {
+    Paner
+  },
   data() {
-    var validatePass = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入密码"));
+    // 自定义验证
+    const checkNewPwd = (rule, val, callback) => {
+      // 验证非空
+      if (!val) {
+        callback(new Error("请输入新密码"));
+      } else if (!REG_PWD.test(val)) {
+        //正则验证失败
+        callback(new Error("字母开头，4到15位，允许字母数字下划线"));
       } else {
-        if (this.updateForm.checkPassword1 !== "") {
-          this.$refs.updateForm.validateField("checkPassword2");
+        // 反向验证二次密码匹配
+        if (this.updateForm.confrimPwd !== "") {
+          // 如果二次密码不为空时，触发表单部分验证
+          this.$refs.updateForm.validateField("confrimPwd"); //重新验证是否一致
         }
+        //正则验证成功
         callback();
       }
     };
-    var validatePass2 = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请再次输入密码"));
-      } else if (value !== this.updateForm.password) {
-        callback(new Error("两次输入密码不一致!"));
+    const checkCfrimPwd = (rule, val, callback) => {
+      if (!val) {
+        callback(new Error("请再次输入新密码"));
+      } else if (val !== this.updateForm.newPwd) {
+        callback(new Error("两次密码不一致"));
       } else {
         callback();
       }
     };
     return {
       updateForm: {
-        password: "",
-        checkPassword1: "",
-        checkPassword2: ""
+        oldPwd: "",
+        newPwd: "",
+        confrimPwd: ""
       },
       rules: {
-        password: [
-          { required: true, message: "请输入原密码", trigger: "blur" }
-        ],
-        checkPassword1: [
-          { required: true, message: "请输入新密码", trigger: "blur" }
-        ],
-        checkPassword2: [
-          { required: true, message: "请再次输入新密码", trigger: "blur" }
+        // 原密码
+        oldPwd: [{ required: true, message: "请输入原密码", trigger: "blur" }],
+        // 新密码
+        newPwd: [{ required: true, validator: checkNewPwd, trigger: "blur" }],
+        // 确认新密码
+        confrimPwd: [
+          { required: true, validator: checkCfrimPwd, trigger: "blur" }
         ]
       }
     };
   },
   methods: {
     submitForm() {
-      this.$refs[formName].validate(valid => {
+      this.$refs.updateForm.validate(valid => {
         if (valid) {
-          alert("submit!");
+          // alert("添加成功");
+
+          this.$message({
+            message: "恭喜你，修改成功",
+            type: "success"
+          });
         } else {
-          console.log("error submit!!");
-          return false;
+          this.$message.error("修改失败");
         }
       });
     },
+    // 重置
     resetForm() {
-      this.$refs[formName].resetFields();
+      this.$refs.updateForm.resetFields();
     }
   }
 };
@@ -90,11 +111,6 @@ export default {
 
 <style lang="less" scoped>
 .userupdate {
-  margin: 20px;
-  background: #fff;
-  height: 360px;
-  border-radius: 4px;
-  padding: 10px;
   .form {
     p {
       margin-bottom: 10px;
