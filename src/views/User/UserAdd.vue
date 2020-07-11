@@ -16,9 +16,9 @@
             </el-form-item>
 
             <!-- 用户组 -->
-            <el-form-item label="用户组" prop="group">
-              <el-select v-model="userForm.group" placeholder="请选择用户组">
-                <el-option label="管理员" value="管理员">管理员</el-option>
+            <el-form-item label="用户组" prop="userGroup">
+              <el-select v-model="userForm.userGroup" placeholder="请选择用户组">
+                <el-option label="普通管理员" value="普通管理员">普通管理员</el-option>
                 <el-option label="超级管理员" value="超级管理员">超级管理员</el-option>
               </el-select>
             </el-form-item>
@@ -39,6 +39,8 @@
 import Paner from "@/components/Paner.vue";
 // 引入正则验证
 import { REG_ACC, REG_PWD } from "@/utils/REG";
+// 引入发送添加账户请求
+import { userAdd } from "@/api/account";
 export default {
   components: {
     Paner
@@ -80,29 +82,32 @@ export default {
       userForm: {
         account: "",
         password: "",
-        group: ""
+        userGroup: ""
       },
       rules: {
         account: { required: true, validator: checkAcc, trigger: "blur" },
         password: { required: true, validator: checkPwd, trigger: "blur" },
 
-        group: { required: true, message: "请选择用户组", trigger: "change" }
+        userGroup: {
+          required: true,
+          message: "请选择用户组",
+          trigger: "change"
+        }
       }
     };
   },
   methods: {
     // 添加
     onSubmit() {
-      this.$refs.userForm.validate(valid => {
+      this.$refs.userForm.validate(async valid => {
         if (valid) {
           // alert("添加成功");
-
-          this.$message({
-            message: "恭喜你，添加成功",
-            type: "success"
-          });
+          let { code, token, role } = await userAdd(this.userForm);
+          if (code === 0) {
+            this.$router.push("/user/user-list");
+          }
         } else {
-          this.$message.error("添加失败");
+          this.$message.error("不能添加");
         }
       });
     },

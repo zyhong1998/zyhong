@@ -32,6 +32,12 @@
 <script>
 // 引入正则验证
 import { REG_ACC } from "@/utils/REG";
+
+// 引入发送登陆请求函数
+import { checkLogin } from "@/api/account";
+
+// 引入本地存储封装函数
+import local from "@//utils/local";
 export default {
   data() {
     // 自定义验证
@@ -63,16 +69,16 @@ export default {
     // 登陆
     login() {
       // 验证所有表单
-      // console.log(this.$refs.loginForm.validate);
-      this.$refs.loginForm.validate(valid => {
+      this.$refs.loginForm.validate(async valid => {
         // console.log(valid);
         if (valid) {
           //成功
-          this.$message({
-            message: "恭喜你，登陆成功",
-            type: "success"
-          });
-          this.$router.push("/home");
+          let { code, token, role } = await checkLogin(this.loginForm);
+          if (code === 0) {
+            // 将token放入本地存储
+            local.set("t_k", token);
+            this.$router.push("/");
+          }
         } else {
           //失败
           this.$message({

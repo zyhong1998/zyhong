@@ -10,6 +10,8 @@ Vue.use(VueRouter)
 import Login from '@/views/Login.vue'
 import Layout from '@/views/Layout/Layout.vue'
 
+// 引入本地存储函数
+import local from '@/utils/local'
 
 // 路由配置
 
@@ -144,8 +146,30 @@ const routes = [
 
 ]
 
+
 const router = new VueRouter({
-  routes
+  routes,
+});
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  /**
+   * to   去哪里
+   * from 从哪里来
+   * next 放行
+   */
+
+  // 判断是否登录
+  let isLogin = local.get('t_k') ? true : false
+  if (isLogin) {//登陆过就放行
+    next()
+  } else {//没登录过
+    if (to.path == '/login') {//去的是登陆页面
+      next()//放行
+    } else {//强制去登录页面
+      next({ path: '/login' })
+    }
+  }
 })
+
 
 export default router

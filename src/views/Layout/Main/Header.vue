@@ -9,12 +9,10 @@
         欢迎你，biubiubiu
         <i class="el-icon-arrow-down el-icon--right"></i>
       </span>
-      <el-dropdown-menu slot="dropdown" trigger="click">
-        <el-dropdown-item @click.native="jumpPersonal">
-          <!-- <router-link to="user/Personal" style="text-decoration: none; color:#606266">个人中心</router-link> -->
-          个人中心
-        </el-dropdown-item>
-        <el-dropdown-item>退出登录</el-dropdown-item>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item @click.native="jumpPersonal">个人中心</el-dropdown-item>
+
+        <el-dropdown-item @click.native="outLogin">退出登录</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
     <!-- 头像 -->
@@ -23,6 +21,7 @@
 </template>
 
 <script>
+import local from "@/utils/local";
 export default {
   data() {
     return {
@@ -46,8 +45,15 @@ export default {
       // console.log(arr);
       this.breadArr = arr;
     },
+    // 跳转到个人中心
     jumpPersonal() {
       this.$router.push("/user/Personal");
+    },
+    // 退出登陆
+    outLogin() {
+      this.$message({ message: "欢迎下次再来,雅虎", type: "success" });
+      local.clear(); // 清除本地
+      this.$router.push("/login"); // 跳转到登录
     }
   },
   created() {
