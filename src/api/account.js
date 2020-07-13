@@ -36,3 +36,23 @@ export function betchDelUser(params) {
 export function savaEditUser(params) {
     return req.post('/users/edit', params)
 }
+
+// 检查原密码是否正确
+export function checkOldPwd(params) {
+    return req.get('/users/checkoldpwd', params)
+}
+
+// 修改密码
+export function editPwd(params) {
+    return req.post('/users/editpwd', params)
+}
+
+// 获取个人中心信息
+export function getUserInfo() {
+    return req.get('/users/info')
+}
+
+// 修改头像
+export function UpdateUserAvatr(params) {
+    return req.get('/users/avataredit', params)
+}

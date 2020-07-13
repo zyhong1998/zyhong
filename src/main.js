@@ -13,7 +13,8 @@ import '@/assets/fonts/iconfont.css'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
-
+// 中介传输
+Vue.prototype.$bus = new Vue();
 
 Vue.config.productionTip = false
 Vue.use(ElementUI);

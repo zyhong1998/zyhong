@@ -6,7 +6,7 @@
     </el-breadcrumb>
     <el-dropdown trigger="click">
       <span class="el-dropdown-link">
-        欢迎你，biubiubiu
+        欢迎你，{{account}}
         <i class="el-icon-arrow-down el-icon--right"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
@@ -16,17 +16,22 @@
       </el-dropdown-menu>
     </el-dropdown>
     <!-- 头像 -->
-    <el-avatar size="medium" :src="avatar"></el-avatar>
+    <el-avatar size="medium" :src="imgUrl"></el-avatar>
   </div>
 </template>
 
 <script>
+// 引入封装获取个人信息的函数
+import { getUserInfo } from "@/api/account";
+
 import local from "@/utils/local";
 export default {
   data() {
     return {
       avatar: require("@/assets/imgs/1.jpg"),
-      breadArr: []
+      breadArr: [],
+      account: "",
+      imgUrl: ""
     };
   },
   methods: {
@@ -54,11 +59,29 @@ export default {
       this.$message({ message: "欢迎下次再来,雅虎", type: "success" });
       local.clear(); // 清除本地
       this.$router.push("/login"); // 跳转到登录
+    },
+    // 获取个人信息
+    async handleUserInfo() {
+      // 发送请求获取响应参数
+      let user = await getUserInfo();
+      // 渲染
+      this.account = user.account;
+      this.imgUrl = user.imgUrl;
+      // 存到本地
+      local.set("user", user);
     }
   },
   created() {
-    this.calcBread(); // 进入页面 或者 刷新页面 调用计算面包屑的函数
-  }, // 侦听器
+    // 进入页面 或者 刷新页面 调用计算面包屑的函数
+    this.calcBread();
+    // 调用获取个人信息函数
+    this.handleUserInfo();
+    // 接受中介的传输信息
+    this.$bus.$on("update_avatar", () => {
+      this.handleUserInfo();
+    });
+  },
+  // 侦听器
   watch: {
     "$route.path"(newVal, oldVal) {
       this.calcBread(); // 切换导航 地址栏就会变化 也要调用计算面包屑的函数

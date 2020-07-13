@@ -22,7 +22,7 @@
       <Serch />
       <el-button type="primary" class="serchBtn">查询</el-button>
     </div>
-    <el-table :data="tableData" border style="width:1000px">
+    <el-table :data="tableData" border :style="{width:width}">
       <el-table-column fixed label="订单号" width="150"></el-table-column>
       <el-table-column prop="date" label="下单时间" width="150"></el-table-column>
       <el-table-column prop="name" label="手机号" width="120"></el-table-column>
@@ -55,6 +55,7 @@ export default {
   },
   data() {
     return {
+      width: document.body.clientWidth - 400 + "px",
       formInline: {
         user: "",
         region: ""

@@ -36,6 +36,11 @@
 import Paner from "@/components/Paner.vue";
 // 引入正则验证
 import { REG_PWD } from "@/utils/REG";
+
+// 引入封装的发送请求函数
+import { checkOldPwd, editPwd } from "@/api/account";
+
+import local from "@/utils/local";
 export default {
   components: {
     Paner
@@ -68,6 +73,23 @@ export default {
         callback();
       }
     };
+    const isOldPwd = async (rule, val, callback) => {
+      // 验证非空
+      if (!val) {
+        callback(new Error("请输入原密码"));
+      } else {
+        // 发送请求验证原密码是否正确
+        let { code, msg } = await checkOldPwd({
+          oldPwd: this.updateForm.oldPwd
+        });
+        // 判断原密码是否错误
+        if (code == "00") {
+          callback();
+        } else {
+          callback(new Error(msg));
+        }
+      }
+    };
     return {
       updateForm: {
         oldPwd: "",
@@ -76,7 +98,7 @@ export default {
       },
       rules: {
         // 原密码
-        oldPwd: [{ required: true, message: "请输入原密码", trigger: "blur" }],
+        oldPwd: [{ required: true, validator: isOldPwd, trigger: "blur" }],
         // 新密码
         newPwd: [{ required: true, validator: checkNewPwd, trigger: "blur" }],
         // 确认新密码
@@ -87,15 +109,29 @@ export default {
     };
   },
   methods: {
+    // 提交修改密码表单
     submitForm() {
-      this.$refs.updateForm.validate(valid => {
+      this.$refs.updateForm.validate(async valid => {
         if (valid) {
-          // alert("添加成功");
-
-          this.$message({
-            message: "恭喜你，修改成功",
-            type: "success"
-          });
+          // 发送密码验证
+          if (this.updateForm.newPwd === this.updateForm.oldPwd) {
+            this.$message.error("新密码与原密码重复了，请重新修改");
+            // 清空密码
+            this.updateForm.newPwd = "";
+            this.updateForm.confrimPwd = "";
+            return;
+          } else {
+            // 发送验证密码请求
+            let { code } = await editPwd({
+              newPwd: this.updateForm.newPwd
+            });
+            if (code === 0) {
+              local.clear(); // 清除本地
+              this.$router.push("/login"); // 跳转到登录
+            } else {
+              this.$message.error("当前网络不好，请稍后再试");
+            }
+          }
         } else {
           this.$message.error("修改失败");
         }
