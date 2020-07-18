@@ -1,117 +1,83 @@
 <template>
   <div class="producttotal">
     <div class="serch">
-      <span class="demonstration">时间范围</span>
-      <Serch />
-      <el-button type="primary" class="serchBtn">查询</el-button>
+      <span class="demonstration" style="marginRight:10px">时间范围</span>
+      <el-date-picker
+        value-format="yyyy-MM-dd HH:mm:ss"
+        v-model="date"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      ></el-date-picker>
+      <el-button type="primary" class="serchBtn" @click="serchBtn" :disabled="isSerch">查询</el-button>
+      <el-button type="success" class="serchBtn" @click="resetBtn" :disabled="isSerch">重置</el-button>
     </div>
-
-    <div class="echarts">
-      <div class="echarts-main" ref="echarts"></div>
-    </div>
+    <LineEcharts :options="options"></LineEcharts>
   </div>
 </template>
 
 <script>
-import echarts from "echarts";
-import Serch from "@/components/Serch.vue";
+import LineEcharts from "@/components/LineEcharts.vue";
+import { getOrderTotal } from "@/api/total";
+import moment from "moment";
 export default {
-  components: {
-    Serch
-  },
+  components: { LineEcharts },
   data() {
     return {
-      value1: "",
-      value2: ""
+      //选择的时间数
+      date: [],
+      //传输到组件的数据
+      options: {
+        title: "商品统计报表",
+        topData: [],
+        xAxisData: [],
+        seriesData: []
+      },
+      isSerch: true
     };
   },
-  created() {
-    this.option = {
-      title: {
-        text: "堆叠区域图"
-      },
-      tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "cross",
-          label: {
-            backgroundColor: "#6a7985"
-          }
-        }
-      },
-      legend: {
-        data: ["邮件营销", "联盟广告", "视频广告", "直接访问", "搜索引擎"]
-      },
-      toolbox: {
-        feature: {
-          saveAsImage: {}
-        }
-      },
-      grid: {
-        left: "3%",
-        right: "4%",
-        bottom: "3%",
-        containLabel: true
-      },
-      xAxis: [
+  methods: {
+    // 获取订单统计
+    async getTotal() {
+      let { data } = await getOrderTotal({ date: JSON.stringify(this.date) });
+
+      // 渲染x轴的时间
+      this.options.xAxisData = data.map(v =>
+        moment(v.orderTime).format("YYYY-MM-DD YY:mm:ss")
+      );
+      let obj = [
         {
-          type: "category",
-          boundaryGap: false,
-          data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-        }
-      ],
-      yAxis: [
-        {
-          type: "value"
-        }
-      ],
-      series: [
-        {
-          name: "邮件营销",
+          name: "订单",
           type: "line",
           stack: "总量",
           areaStyle: {},
-          data: [120, 132, 101, 134, 90, 230, 210]
-        },
-        {
-          name: "联盟广告",
-          type: "line",
-          stack: "总量",
-          areaStyle: {},
-          data: [220, 182, 191, 234, 290, 330, 310]
-        },
-        {
-          name: "视频广告",
-          type: "line",
-          stack: "总量",
-          areaStyle: {},
-          data: [150, 232, 201, 154, 190, 330, 410]
-        },
-        {
-          name: "直接访问",
-          type: "line",
-          stack: "总量",
-          areaStyle: {},
-          data: [320, 332, 301, 334, 390, 330, 320]
-        },
-        {
-          name: "搜索引擎",
-          type: "line",
-          stack: "总量",
-          label: {
-            normal: {
-              show: true,
-              position: "top"
-            }
-          },
-          areaStyle: {},
-          data: [820, 932, 901, 934, 1290, 1330, 1320]
+          data: data.map(v => v.orderAmount)
         }
-      ]
-    };
+      ];
+      // 渲染核心数据
+      this.options.seriesData = obj;
+    },
+    // 查询
+    serchBtn() {
+      this.getTotal();
+    },
+    resetBtn() {
+      this.date = "";
+      this.getTotal();
+    }
   },
+
   mounted() {
-    echarts.init(this.$refs.echarts).setOption(this.option);
+    this.getTotal();
+  },
+  watch: {
+    date: {
+      //监控时间选择有无更改
+      handler(newVal, oldVal) {
+        this.isSerch = false; //将禁用按钮取消
+      }
+    }
   }
 };
 </script>
@@ -119,18 +85,11 @@ export default {
 <style lang="less" scoped>
 .producttotal {
   border-radius: 6px;
-  .echarts {
-    background: #fff;
-    margin-top: 20px;
-    .echarts-main {
-      width: 100%;
-      height: 400px;
-      padding-top: 20px;
-    }
-  }
+
   .serch {
     display: flex;
     align-items: center;
+    margin-bottom: 20px;
     /deep/.block,
     button {
       margin-left: 10px;

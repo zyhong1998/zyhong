@@ -2,7 +2,7 @@
   <div class="productlist">
     <Paner>
       <h3 slot="title">商品分类</h3>
-      <el-button type="primary" slot="button" @click="isModel">添加分类</el-button>
+      <el-button type="primary" slot="button1" @click="isModel" size="small">添加分类</el-button>
       <div slot="content">
         <el-table :data="tableData" style="width: 100%">
           <!-- 序号 -->
@@ -28,6 +28,7 @@
           <el-table-column label="操作" width="220">
             <template slot-scope="scope">
               <el-button
+                type="primary"
                 size="small"
                 @click="handelClass(scope.row)"
                 :disabled="scope.row.isDisabled ? true :false "
@@ -94,7 +95,7 @@ export default {
       tableData: [],
       total: 0, //总条数
       currentPage: 1, //当前页
-      pageSize: 3, //每页条数
+      pageSize: 5, //每页条数
       form: { name: "" },
       dialogFormVisible: false, //模态框,
       updateFrom: { class: "", state: true }
@@ -123,11 +124,16 @@ export default {
         // 再次调用
         this.fetchData();
       }
+      let arr = data.map(v => {
+        return v.cateName;
+      });
+
       // 赋值渲染
       this.tableData = data;
       // 数据总条数
       this.total = total;
     },
+
     // 当前页码改变,调用一次刷新账号列表
     handleCurrentChange(val) {
       this.currentPage = val;

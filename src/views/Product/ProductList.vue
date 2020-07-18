@@ -19,15 +19,16 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">查询</el-button>
+            <el-button size="small" type="primary" @click="onSubmit">查询</el-button>
+            <el-button size="small" type="success" @click="reset">重置</el-button>
           </el-form-item>
         </el-form>
         <!-- 商品列表 -->
         <el-table :data="tableData" style="width: 100%">
           <el-table-column type="expand">
+            <!-- 这里是展开的内容 -->
             <template slot-scope="props">
               <el-form label-position="left" inline class="demo-table-expand">
-                <!-- 这里是展开的内容 -->
                 <el-form-item label="商品ID">
                   <span>{{ props.row.id }}</span>
                 </el-form-item>
@@ -38,7 +39,7 @@
                   <span>{{ props.row.category }}</span>
                 </el-form-item>
                 <el-form-item label="商品价格">
-                  <span>￥：{{ props.row.price }}元</span>
+                  <span>{{ '￥'+ props.row.price }}</span>
                 </el-form-item>
                 <el-form-item label="商品图片">
                   <span>
@@ -65,7 +66,7 @@
           <el-table-column label="所属分类" prop="category"></el-table-column>
 
           <el-table-column label="商品价格">
-            <template slot-scope="props">￥:{{props.row.price}}元</template>
+            <template slot-scope="props">{{'￥'+ props.row.price}}</template>
           </el-table-column>
 
           <el-table-column label="商品图片">
@@ -89,7 +90,7 @@
         <el-dialog title="编辑商品信息" :visible.sync="dialogFormVisible">
           <el-form :model="form" :rules="rules">
             <el-form-item label="商品名称" prop="name">
-              <el-input v-model="form.name" autocomplete="off" style="width:200px"></el-input>
+              <el-input v-model="form.name" autocomplete="off" style="width:340px"></el-input>
             </el-form-item>
             <el-form-item label="商品分类" prop="category">
               <el-select v-model="form.category" placeholder="请选择商品分类">
@@ -117,7 +118,13 @@
               </el-upload>
             </el-form-item>
             <el-form-item label="商品描述" prop="goodsDesc">
-              <el-input v-model="form.goodsDesc" autocomplete="off" style="width:200px"></el-input>
+              <el-input
+                v-model="form.goodsDesc"
+                :autosize="{ minRows: 4, maxRows: 8 }"
+                autocomplete="off"
+                style="width:200px"
+                type="textarea"
+              ></el-input>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -154,15 +161,6 @@ export default {
     Paner
   },
   data() {
-    // 自定义验证规则
-    // const checkName = (rule, val, callback) => {
-    //   if (REG_NAME.test(this.form.name)) {
-    //     // console.log("正则通过");
-    //     callback();
-    //   } else {
-    //     callback(new Error("请输入3-12位"));
-    //   }
-    // };
     return {
       total: 0, //总条数
       currentPage: 1, //当前页
@@ -194,7 +192,7 @@ export default {
           trigger: "blur"
         }
       },
-      formInline: {}
+      formInline: { name: "", category: "" }
     };
   },
   methods: {
@@ -202,21 +200,31 @@ export default {
     async fetchProductList() {
       let { total, data } = await getGoodsList({
         currentPage: this.currentPage,
-        pageSize: this.pageSize
+        pageSize: this.pageSize,
+        name: this.formInline.name,
+        category: this.formInline.category
       });
       // 处理ctime时间格式
       data.forEach(v => {
         v.ctime = moment(v.ctime).format("YYYY-MM-DD HH:mm:ss");
       });
+      // 边界判断 当前页码是否还有数据，没有时就将当前页码减一，且当前页码不为1
+      if (!data.length && this.currentPage !== 1) {
+        // console.log(data.length, this.currentPage);
+        // 当前页码减一
+        this.currentPage -= 1;
+        // 再次调用
+        this.fetchProductList();
+      }
       this.total = total;
       this.tableData = data;
     },
-    // 当前页码改变,调用一次刷新账号列表
+    // 每页条数改变，调用一次刷新账号列表
     handleSizeChange(val) {
       this.pageSize = val;
       this.fetchProductList();
     },
-    // 每页条数改变，调用一次刷新账号列表
+    // 当前页码改变,调用一次刷新账号列表
     handleCurrentChange(val) {
       this.currentPage = val;
       this.fetchProductList();
@@ -292,21 +300,16 @@ export default {
           });
         });
     },
-    // 按分类查询
-    async onSubmit() {
-      // console.log(this.formInline.name, this.formInline.category);
-      let { total, data } = await getGoodsList({
-        currentPage: this.currentPage,
-        pageSize: this.pageSize,
-        name: this.formInline.name,
-        category: this.formInline.category
-      });
-      // 处理ctime时间格式
-      data.forEach(v => {
-        v.ctime = moment(v.ctime).format("YYYY-MM-DD HH:mm:ss");
-      });
-      this.total = total;
-      this.tableData = data;
+    // // 按分类查询
+    onSubmit() {
+      this.currentPage = 1;
+      this.fetchProductList();
+    },
+    //重置
+    reset() {
+      this.formInline.name = "";
+      this.formInline.category = "";
+      this.fetchProductList();
     }
   },
   async created() {

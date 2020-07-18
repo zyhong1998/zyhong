@@ -7,7 +7,10 @@
           <slot name="title" />
         </span>
 
-        <slot name="button" />
+        <div>
+          <slot name="button2" />
+          <slot name="button1" />
+        </div>
       </div>
       <div class="content">
         <slot name="content" />

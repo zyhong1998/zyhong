@@ -25,7 +25,7 @@
               v-model="form.price"
               @change="handleChange"
               :min="1"
-              :max="10"
+              :max="1000"
               label="描述文字"
             ></el-input-number>
           </el-form-item>
@@ -137,13 +137,8 @@ export default {
     // 添加商品
     addGoods() {
       this.$refs.form.validate(async valid => {
-        let { code } = await addProduct({
-          name: this.form.name,
-          category: this.form.category,
-          price: this.form.price,
-          imgUrl: this.imgUrl,
-          goodsDesc: this.form.goodsDesc
-        });
+        let { code } = await addProduct(this.form);
+        console.log(code);
         if (code == 0) {
           this.$router.push("/product/product-list");
         } else {

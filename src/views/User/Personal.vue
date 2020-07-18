@@ -76,17 +76,18 @@ export default {
         // 中介传输
         this.$bus.$emit("update_avatar");
         // 将上传框的图片清空
-        this.imgUrl = "";
+        // this.imgUrl = "";
       }
     }
   },
   created() {
     // 本地拿取个人信息
     let userData = local.get("user");
-    // 处理时间
     userData.ctime = moment(userData.ctime).format("YYYY-MM-DD HH:mm:ss");
     // 渲染
     this.user = userData;
+    // 回填管理员头像
+    this.imgUrl = userData.imgUrl.substr(this.imgUrlBase.length);
   }
 };
 </script>

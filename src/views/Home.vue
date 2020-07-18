@@ -6,104 +6,75 @@
         <Card :carditem="v"></Card>
       </el-col>
     </el-row>
-    <div class="echarts">
-      <div class="echarts-main" ref="echarts"></div>
-    </div>
+    <LineEcharts :options="optionsData" />
   </div>
 </template>
 
 <script>
 import Card from "@/components/Card.vue";
-import echarts from "echarts";
+import LineEcharts from "@/components/LineEcharts.vue";
+import { getTotal } from "@/api/home";
 export default {
   components: {
-    Card
+    Card,
+    LineEcharts
   },
   data() {
     return {
       cardclass: [
-        { iconSrc: "el-icon-document", title: "总订单", num: "41414" },
-        { iconSrc: "iconfont icon-qian", title: "总销售额", num: "4141241" },
-        { iconSrc: "el-icon-s-claim", title: "今日订单数", num: "3213123" },
-        { iconSrc: "iconfont icon-tsk", title: "今日销售额", num: "2131" }
-      ]
+        { iconSrc: "el-icon-document", title: "总订单", num: "" },
+        { iconSrc: "iconfont icon-qian", title: "总销售额", num: "" },
+        { iconSrc: "el-icon-s-claim", title: "今日订单数", num: "" },
+        { iconSrc: "iconfont icon-tsk", title: "今日销售额", num: "" }
+      ],
+      optionsData: {
+        title: "数据统计",
+        lengend: ["订单", "销售额"],
+        xAxisData: [],
+        seriesData: []
+      }
     };
   },
-  created() {
-    this.option = {
-      title: {
-        text: "折线图堆叠"
-      },
-      tooltip: {
-        trigger: "axis"
-      },
-      legend: {
-        data: ["订单", "销售额", "注册人数", "管理员人数"]
-      },
-      grid: {
-        left: "3%",
-        right: "4%",
-        bottom: "3%",
-        containLabel: true
-      },
-      toolbox: {
-        feature: {
-          saveAsImage: {}
-        }
-      },
-      xAxis: {
-        type: "category",
-        boundaryGap: false,
-        data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-      },
-      yAxis: {
-        type: "value"
-      },
-      series: [
+  methods: {
+    async getData() {
+      // 发送ajax
+      let {
+        xData,
+        orderData,
+        amountData,
+        totalOrder,
+        totalAmount,
+        todayOrder,
+        totayAmount
+      } = await getTotal();
+
+      let arr = [totalOrder, totalAmount, todayOrder, totayAmount];
+      // 卡片数据渲染
+      this.cardclass.forEach((v, i) => (v.num = arr[i])); //卡片数据渲染
+      this.optionsData.xAxisData = xData; //x轴数据渲染
+      //series核心参数渲染
+      this.optionsData.seriesData = [
         {
           name: "订单",
           type: "line",
-          stack: "总量",
-          data: [120, 132, 101, 134, 90, 230, 210]
+          data: orderData
         },
         {
           name: "销售额",
           type: "line",
-          stack: "总量",
-          data: [220, 182, 191, 234, 290, 330, 310]
-        },
-        {
-          name: "注册人数",
-          type: "line",
-          stack: "总量",
-          data: [150, 232, 201, 154, 190, 330, 410]
-        },
-        {
-          name: "管理员人数",
-          type: "line",
-          stack: "总量",
-          data: [320, 332, 301, 334, 390, 330, 320]
+          data: amountData
         }
-      ]
-    };
+      ];
+    }
   },
-  mounted() {
-    echarts.init(this.$refs.echarts).setOption(this.option);
+
+  created() {
+    this.getData();
   }
 };
 </script>
 
 <style lang="less" scoped>
-.echarts {
-  background: #fff;
-  height: 360px;
-  border-radius: 4px;
-  padding: 10px;
-  .echarts-main {
-    width: 100%;
-    height: 300px;
-  }
-}
 .card {
   /deep/span {
     font-size: 50px;

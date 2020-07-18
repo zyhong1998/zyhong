@@ -43,7 +43,6 @@ axios.interceptors.response.use((response) => {
         } else if (code === 1) {//失败
             Message.error(msg)
         }
-
     }
     console.log("详情拦截");
     return response;

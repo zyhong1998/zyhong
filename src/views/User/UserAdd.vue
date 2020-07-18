@@ -26,7 +26,7 @@
             <!-- 重置 -->
             <el-form-item>
               <el-button type="primary" @click="onSubmit">添加</el-button>
-              <el-button @click="resetForm">重置</el-button>
+              <el-button type="success" @click="resetForm">重置</el-button>
             </el-form-item>
           </el-form>
         </div>

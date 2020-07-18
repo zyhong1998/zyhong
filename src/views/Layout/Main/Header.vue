@@ -59,6 +59,7 @@ export default {
       this.$message({ message: "欢迎下次再来,雅虎", type: "success" });
       local.clear(); // 清除本地
       this.$router.push("/login"); // 跳转到登录
+      location.reload();
     },
     // 获取个人信息
     async handleUserInfo() {

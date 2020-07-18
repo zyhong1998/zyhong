@@ -29,7 +29,7 @@ export default {
   border-radius: 4px;
   box-shadow: 0px 0px 5px #ccc;
   margin-bottom: 20px;
-  padding: 0 20px;
+  padding: 0 40px;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;

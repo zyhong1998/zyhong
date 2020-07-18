@@ -14,6 +14,7 @@
           </el-form-item>
           <el-form-item prop="password">
             <el-input
+              @keydown.native.enter="login"
               @click.native="changeIcon"
               :type="isOpen?'text':'password'"
               :suffix-icon="isOpen?'iconfont icon-yanjing1':'iconfont icon-yanjing' "
@@ -38,6 +39,8 @@ import { checkLogin } from "@/api/account";
 
 // 引入本地存储封装函数
 import local from "@//utils/local";
+// 引入计算权限后的路由函数
+import { createRouter } from "@/router";
 export default {
   data() {
     // 自定义验证
@@ -77,6 +80,10 @@ export default {
           if (code === 0) {
             // 将token放入本地存储
             local.set("t_k", token);
+            // console.log(role);
+            // 将role存入本地
+            local.set("role", role);
+            createRouter();
             this.$router.push("/");
           }
         } else {

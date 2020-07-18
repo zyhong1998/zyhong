@@ -14,69 +14,53 @@
           <el-avatar icon="el-icon-dish"></el-avatar>
           <h3>外卖商家中心</h3>
         </div>
+        <template v-for="menu in menus">
+          <!-- 一级菜单栏 -->
+          <el-menu-item
+            :index="menu.children && menu.children.length && menu.children[0] != '' ? menu.children[0].path : menu.path"
+            :key="menu.path"
+            v-if="menu.children && menu.children.length ===1 || menu.path =='/order'"
+          >
+            <i :class="menu.meta.icon"></i>
+            <span slot="title">{{menu.meta.title}}</span>
+          </el-menu-item>
 
-        <!-- 后台首页 -->
-        <el-menu-item index="/home">
-          <i class="el-icon-s-home"></i>
-          <span slot="title">后台首页</span>
-        </el-menu-item>
-
-        <!-- 订单管理 -->
-        <el-menu-item index="/order/order-list">
-          <i class="el-icon-document-copy"></i>
-          <span slot="title">订单管理</span>
-        </el-menu-item>
-
-        <!-- 商品管理 -->
-        <el-submenu index="3">
-          <template slot="title">
-            <i class="el-icon-shopping-bag-1"></i>
-            <span>商品管理</span>
-          </template>
-          <el-menu-item index="/product/product-list">商品列表</el-menu-item>
-          <el-menu-item index="/product/product-add">商品添加</el-menu-item>
-          <el-menu-item index="/product/product-class">商品分类</el-menu-item>
-        </el-submenu>
-
-        <!-- 店铺管理 -->
-        <el-menu-item index="/shop">
-          <i class="el-icon-s-shop"></i>
-          <span slot="title">店铺管理</span>
-        </el-menu-item>
-
-        <!-- 账号管理 -->
-        <el-submenu index="5">
-          <template slot="title">
-            <i class="el-icon-user"></i>
-            <span>账号管理</span>
-          </template>
-          <el-menu-item index="/user/user-list">账号列表</el-menu-item>
-          <el-menu-item index="/user/user-add">添加账号</el-menu-item>
-          <el-menu-item index="/user/user-update">修改密码</el-menu-item>
-          <el-menu-item index="/user/Personal">个人中心</el-menu-item>
-        </el-submenu>
-
-        <!-- 销售统计 -->
-        <el-submenu index="6">
-          <template slot="title">
-            <i class="el-icon-pie-chart"></i>
-            <span>销售统计</span>
-          </template>
-          <el-menu-item index="/total/product-total">商品统计</el-menu-item>
-          <el-menu-item index="/total/order-total">订单统计</el-menu-item>
-        </el-submenu>
+          <!-- 一级、二级菜单栏 -->
+          <el-submenu v-else :index="menu.path" :key="menu.path">
+            <template slot="title">
+              <i :class="menu.meta.icon"></i>
+              <span>{{menu.meta.title}}</span>
+            </template>
+            <el-menu-item
+              v-for="item in menu.children"
+              :index="item.path"
+              :key="item.path"
+            >{{item.meta.title}}</el-menu-item>
+          </el-submenu>
+        </template>
       </el-menu>
     </el-col>
   </div>
 </template>
 
 <script>
+import local from "@/utils/local";
 export default {
+  data() {
+    return {
+      menus: []
+    };
+  },
   computed: {
     // 当前激活
     curActive() {
+      if (this.$route.path == "/order/order-update") return "/order/order-list";
       return this.$route.path;
     }
+  },
+  created() {
+    // 去除本地存储好的动态菜单
+    this.menus = local.get("menus");
   }
 };
 </script>

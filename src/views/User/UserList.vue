@@ -17,7 +17,7 @@
             <el-table-column prop="ctime" label="创建时间" width="160"></el-table-column>
             <el-table-column label="操作" width="220">
               <template slot-scope="scope">
-                <el-button size="small" @click="handelEdit(scope.row)">编辑</el-button>
+                <el-button size="small" type="primary" @click="handelEdit(scope.row)">编辑</el-button>
                 <el-button type="danger" size="small" @click="handelUser(scope.row.id)">删除</el-button>
               </template>
             </el-table-column>
@@ -78,6 +78,8 @@ import moment from "moment";
 
 // 引入正则验证
 import { REG_ACC } from "@/utils/REG";
+
+import local from "@/utils/local";
 export default {
   components: {
     // Pager,
@@ -136,6 +138,11 @@ export default {
     },
     // 删除账户
     handelUser(id) {
+      let userId = local.get("user");
+      if (id === userId.id) {
+        this.$message.error("不能删除当前账户");
+        return;
+      }
       // 发送删除请求
       this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
         confirmButtonText: "确定",
